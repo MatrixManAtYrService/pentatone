@@ -4,6 +4,7 @@ from math import pi, sin
 from struct import pack
 
 from pydub import AudioSegment
+from pydub.generators import Sine
 
 
 def get_fret_frequencies(open_freq):
@@ -118,32 +119,53 @@ def parse_args(args, fret_string_frequencies):
 
         return string_num, fret_num, overtones, scale
 
-def create_sine_wave_audio_segment(frequencyHz, duration_seconds, sample_rate=44100, volume=0.5):
+def apply_volume_gain(segment, volume):
     """
-    Create an AudioSegment object containing a sine wave of the specified frequency.
+    Apply volume gain to an AudioSegment.
+    
+    :param segment: The AudioSegment to which gain is applied.
+    :param volume: The volume level (0.0 to 1.0).
+    :return: The AudioSegment with the applied gain.
+    """
+    # Calculate the gain in dB relative to the volume level
+    gain = 20 * (volume - 1)
+    return segment.apply_gain(gain)
 
-    :param frequencyHz: The frequency of the sine wave (in Hz)
+
+def sine_wave(frequency_hz, duration_seconds=.5, sample_rate=44100, volume=0.5, overtones=False):
+    """
+    Create an AudioSegment object containing a sine wave of the specified frequency
+    with optional overtones to simulate a plucked guitar string.
+
+    :param frequency_hz: The fundamental frequency of the sine wave (in Hz)
     :param duration_seconds: The duration of the sine wave (in seconds)
     :param sample_rate: The sample rate (in samples per second)
-    :param volume: Volume of the sine wave (0.0 to 1.0)
-    :return: An AudioSegment containing the sine wave
+    :param volume: The volume of the sine wave (0.0 to 1.0)
+    :param overtones: A boolean indicating whether to apply overtones
+    :return: An AudioSegment containing the sine wave with overtones
     """
-    wave_data = b''
-    max_vol = int((2**15 - 1) * volume)
 
-    # Ensure the range function receives an integer value
-    for i in range(int(sample_rate * duration_seconds)):
-        pcm_value = sin(i * frequencyHz / sample_rate * pi * 2)
-        pcm_value = int(max_vol * pcm_value)
-        wave_data += pack('h', pcm_value)
+    # Define overtone harmonic amplitudes if overtones are enabled
+    overtone_harmonic_amplitude = {2: 0.5, 3: 0.4, 4: 0.3, 5: 0.2, 6: 0.1} if overtones else {}
 
-    # Generate the AudioSegment object directly from the wave data
-    audio_segment = AudioSegment(
-        data=wave_data,
-        sample_width=2,  # 2 bytes per sample (16-bit)
-        frame_rate=sample_rate,
-        channels=1
+    # Create the fundamental tone
+    base_tone = Sine(frequency_hz, sample_rate=sample_rate)
+    base_segment = apply_volume_gain(
+        base_tone.to_audio_segment(duration=duration_seconds * 1000),
+        volume
     )
 
-    return audio_segment
-   
+    # Initialize the output segment with the fundamental tone
+    output_segment = base_segment
+
+    # Overlay the overtones
+    for overtone, overtone_volume in overtone_harmonic_amplitude.items():
+        overtone_freq = frequency_hz * overtone
+        overtone_tone = Sine(overtone_freq, sample_rate=sample_rate)
+        overtone_segment = apply_volume_gain(
+            overtone_tone.to_audio_segment(duration=duration_seconds * 1000),
+            overtone_volume
+        )
+        output_segment = output_segment.overlay(overtone_segment)
+
+    return output_segment

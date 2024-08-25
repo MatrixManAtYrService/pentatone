@@ -3,7 +3,7 @@ import sys
 
 # helpers is a module that I wrote,
 # you can import it because it's in the same directory as this script
-from helpers import parse_args, get_fret_frequencies, create_sine_wave_audio_segment
+from helpers import parse_args, get_fret_frequencies, sine_wave
 
 from pydub.playback import play
 
@@ -27,7 +27,7 @@ frequencies = [get_fret_frequencies(open_freq) for open_freq in standard_tuning]
 string_num, fret_num, overtones, scale = parse_args(sys.argv, frequencies)
 
 base_freq = frequencies[string_num][fret_num]
-base_sample = create_sine_wave_audio_segment(base_freq, duration_seconds=0.5, volume=0.5)
+base_sample = sine_wave(base_freq, duration_seconds=0.5, volume=0.5, overtones=overtones)
 
 play(base_sample)
     
