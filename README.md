@@ -15,7 +15,7 @@ This is a rudamentary guitar simulator.  It makes sounds.
 
 ### Some commands to try
 
-- `python tone.py`
-- `python tone.py --string 2 --fret 5`
-- `python tone.py --string 2 --fret 5 --overtones`
-- `python tone.py --string 2 --fret 5 --overtones --scale`
+python tone.py
+python tone.py --string 2 --fret 5
+python tone.py --string 2 --fret 5 --overtones
+python tone.py --string 2 --fret 5 --overtones --scale
