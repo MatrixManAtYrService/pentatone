@@ -11,7 +11,7 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [ python312 ffmpeg ];
+          packages = with pkgs; [ python312 python312Packages.pip python312Packages.pydub ffmpeg ];
         };
       });
 }
