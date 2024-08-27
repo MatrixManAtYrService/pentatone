@@ -30,10 +30,10 @@ def show_help():
     print(f"""
   Usage Examples:
     {sys.argv[0]} --show-frets
-    {sys.argv[0]} --string 0 --fret 3
-    {sys.argv[0]} --string 0 --fret 3 --overtones
-    {sys.argv[0]} --string 0 --fret 3 --scale
-    {sys.argv[0]} --string 0 --fret 3 --scale --overtones
+    {sys.argv[0]} --string 1 --fret 3
+    {sys.argv[0]} --string 1 --fret 3 --overtones
+    {sys.argv[0]} --string 1 --fret 3 --scale
+    {sys.argv[0]} --string 1 --fret 3 --scale --overtones
 """)
 
 
